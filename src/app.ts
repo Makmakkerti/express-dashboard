@@ -16,13 +16,13 @@ export class App {
 	constructor(
 		@inject(TYPES.ILogger) private logger: ILogger,
 		@inject(TYPES.IUser) private userController: UserController,
-		@inject(TYPES.ExceptionFilter) private exceptionFilter: ExceptionFilter
+		@inject(TYPES.ExceptionFilter) private exceptionFilter: ExceptionFilter,
 	) {
 		this.app = express();
 		this.port = 3000;
 	}
 
-	useRoutes() {
+	useRoutes(): void {
 		this.app.get('/', (req, res) => {
 			this.logger.log('healthcheck');
 			res.send('Welcome to Dashboard');
@@ -30,11 +30,11 @@ export class App {
 		this.app.use('/user', this.userController.router);
 	}
 
-	useExceptionFilters() {
+	useExceptionFilters(): void {
 		this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
 	}
 
-	public async init() {
+	public async init(): Promise<void> {
 		this.useRoutes();
 		this.useExceptionFilters();
 

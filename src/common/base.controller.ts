@@ -12,23 +12,23 @@ export abstract class BaseController {
 		this._router = Router();
 	}
 
-	get router() {
+	get router(): Router {
 		return this._router;
 	}
 
-	public created(res: Response) {
+	public created(res: Response): Response {
 		return res.sendStatus(201);
 	}
 
-	public send<T>(res: Response, code: number, message: T) {
+	public send<T>(res: Response, code: number, message: T): Response {
 		return res.status(code).type('application/json').json(message);
 	}
 
-	public ok<T>(res: Response, message: T) {
+	public ok<T>(res: Response, message: T): Response {
 		return this.send(res, 200, message);
 	}
 
-	protected bindRoutes(routes: IControllerRoute[]) {
+	protected bindRoutes(routes: IControllerRoute[]): void {
 		for (const route of routes) {
 			this.logger.log(`[${route.method}]: ${route.path}`);
 			const handler = route.func.bind(this);

@@ -6,7 +6,6 @@ import { ILogger } from './logger/logger.interface';
 import { UserController } from './users/users.controller';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { TYPES } from './types';
-import { NetworkInterfaceBase } from 'os';
 import { IUser } from './users/user.interface';
 
 const appBindings = new ContainerModule((bind: interfaces.Bind) => {
@@ -16,7 +15,12 @@ const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 	bind<App>(TYPES.Application).to(App);
 });
 
-function bootstrap() {
+export interface IBootstrap {
+	app: App;
+	appContainer: Container;
+}
+
+function bootstrap(): IBootstrap {
 	const appContainer = new Container();
 	appContainer.load(appBindings);
 	const app = appContainer.get<App>(TYPES.Application);
