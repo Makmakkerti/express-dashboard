@@ -15,3 +15,4 @@ Express App with TS and IoC architecture
 - make build - to compile and build app
 - make inspect - to run dev with chrome inspector
 - make cannon - to run clinic with autocannon
+  (\*Note: to use clinic and autocannon you need to install it globally 'npm i -g clinic autocannon')

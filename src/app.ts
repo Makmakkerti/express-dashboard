@@ -1,10 +1,11 @@
-import express, { Express } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import { Server } from 'http';
 import { ExceptionFilter } from './errors/exception.filter';
 import { ILogger } from './logger/logger.interface';
 import { UserController } from './users/users.controller';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
+import { json } from 'body-parser';
 import { TYPES } from './types';
 
 @injectable()
@@ -21,6 +22,9 @@ export class App {
 		this.app = express();
 		this.port = 3000;
 	}
+	useMiddlewares(): void {
+		this.app.use(json());
+	}
 
 	useRoutes(): void {
 		this.app.get('/', (req, res) => {
@@ -35,6 +39,7 @@ export class App {
 	}
 
 	public async init(): Promise<void> {
+		this.useMiddlewares();
 		this.useRoutes();
 		this.useExceptionFilters();
 
