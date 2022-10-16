@@ -18,15 +18,16 @@ export class UserController extends BaseController implements IUser {
 		]);
 	}
 
-	login(req: Request, res: Response, next: NextFunction) {
+	login(req: Request, res: Response, next: NextFunction): void {
 		res.json({ login: 200 });
 	}
 
-	register(req: Request, res: Response, next: NextFunction) {
+	register(req: Request, res: Response, next: NextFunction): void {
 		res.json({ register: 200 });
 	}
 
-	error(req: Request, res: Response, next: NextFunction) {
+	error(req: Request, res: Response, next: NextFunction): void {
+		console.log('Some error has happened!');
 		next(new HTTPError(522, 'Testing error message', 'Testing error context'));
 	}
 }
