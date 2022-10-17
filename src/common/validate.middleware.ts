@@ -11,8 +11,9 @@ export class ValidateMiddleware implements IMiddleware {
 		validate(instance).then((errors) => {
 			if (errors.length) {
 				return res.status(422).send(errors);
+			} else {
+				next();
 			}
-			next();
 		});
 	}
 }

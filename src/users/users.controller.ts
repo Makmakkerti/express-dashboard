@@ -5,15 +5,14 @@ import { inject, injectable } from 'inversify';
 import { ILogger } from '../logger/logger.interface';
 import 'reflect-metadata';
 import { TYPES } from '../types';
-import { IUser } from './user.interface';
+import { IUserController } from './user.interface';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
-import { User } from './user';
 import { IUserService } from './users.service.interface';
 import { ValidateMiddleware } from '../common/validate.middleware';
 
 @injectable()
-export class UserController extends BaseController implements IUser {
+export class UserController extends BaseController implements IUserController {
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.IUserService) private userService: IUserService,
@@ -40,12 +39,14 @@ export class UserController extends BaseController implements IUser {
 		res: Response,
 		next: NextFunction,
 	): Promise<void> {
-		const newUser = await this.userService.createUser(body);
-		if (!newUser) {
+		const result = await this.userService.createUser(body);
+		if (!result) {
 			return next(new HTTPError(422, 'User already exists'));
 		}
-		const { name, email } = newUser;
-		this.ok(res, { name, email });
+		if (result instanceof Error) {
+			return next(result);
+		}
+		this.ok(res, { email: result.email });
 	}
 
 	error(req: Request, res: Response, next: NextFunction): void {

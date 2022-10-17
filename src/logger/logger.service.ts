@@ -13,6 +13,7 @@ export class LoggerService {
 			displayFilePath: 'hidden',
 			displayFunctionName: false,
 		});
+		console.log('[LoggerService] Service loaded');
 	}
 
 	log(...args: unknown[]): void {
