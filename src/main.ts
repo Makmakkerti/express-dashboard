@@ -7,25 +7,28 @@ import { UserController } from './users/users.controller';
 import { IExceptionFilter } from './errors/exception.filter.interface';
 import { TYPES } from './types';
 import { IUser } from './users/user.interface';
-
-const appBindings = new ContainerModule((bind: interfaces.Bind) => {
-	bind<ILogger>(TYPES.ILogger).to(LoggerService);
-	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter);
-	bind<IUser>(TYPES.IUser).to(UserController);
-	bind<App>(TYPES.Application).to(App);
-});
+import { IUserService } from './users/users.service.interface';
+import { UserService } from './users/users.service';
 
 export interface IBootstrap {
 	app: App;
 	appContainer: Container;
 }
 
-function bootstrap(): IBootstrap {
+export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
+	bind<ILogger>(TYPES.ILogger).to(LoggerService);
+	bind<IExceptionFilter>(TYPES.ExceptionFilter).to(ExceptionFilter);
+	bind<IUser>(TYPES.IUserController).to(UserController);
+	bind<IUserService>(TYPES.IUserService).to(UserService);
+	bind<App>(TYPES.Application).to(App);
+});
+
+async function bootstrap(): Promise<IBootstrap> {
 	const appContainer = new Container();
 	appContainer.load(appBindings);
 	const app = appContainer.get<App>(TYPES.Application);
-	app.init();
+	await app.init();
 	return { app, appContainer };
 }
 
-export const { app, appContainer } = bootstrap();
+export const boot = bootstrap();

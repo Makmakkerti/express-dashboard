@@ -1,7 +1,8 @@
 const TYPES = {
 	Application: Symbol.for('Application'),
 	ILogger: Symbol.for('ILogger'),
-	IUser: Symbol.for('IUser'),
+	IUserController: Symbol.for('IUserController'),
+	IUserService: Symbol.for('IUserService'),
 	ExceptionFilter: Symbol.for('ExceptionFilter'),
 };
 
