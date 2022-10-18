@@ -6,6 +6,7 @@ const TYPES = {
 	ExceptionFilter: Symbol.for('ExceptionFilter'),
 	IConfigService: Symbol.for('IConfigService'),
 	PrismaService: Symbol.for('PrismaService'),
+	UsersRepository: Symbol.for('UsersRepository'),
 };
 
 export { TYPES };

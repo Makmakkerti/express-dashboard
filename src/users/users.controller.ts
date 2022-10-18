@@ -19,7 +19,12 @@ export class UserController extends BaseController implements IUserController {
 	) {
 		super(loggerService);
 		this.bindRoutes([
-			{ path: '/login', method: 'post', func: this.login },
+			{
+				path: '/login',
+				method: 'post',
+				func: this.login,
+				middlewares: [new ValidateMiddleware(UserLoginDto)],
+			},
 			{
 				path: '/register',
 				method: 'post',
@@ -30,8 +35,24 @@ export class UserController extends BaseController implements IUserController {
 		]);
 	}
 
-	login(req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void {
-		this.ok(res, { login: 200 });
+	async login(
+		{ body }: Request<{}, {}, UserLoginDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> {
+		const isValidUser = await this.userService.validateUser(body);
+		if (!isValidUser) {
+			this.loggerService.error('[UserController]: login (invalid credentials)');
+			return next(new Error('invalid credentials'));
+		}
+
+		const foundUser = await this.userService.getUserInfo(body.email);
+		if (!foundUser) {
+			this.loggerService.error('[UserController]: login (user not found)');
+			return next(new Error('user not found)'));
+		}
+
+		this.ok(res, foundUser);
 	}
 
 	async register(
@@ -46,7 +67,7 @@ export class UserController extends BaseController implements IUserController {
 		if (result instanceof Error) {
 			return next(result);
 		}
-		this.ok(res, { email: result.email });
+		this.ok(res, { email: result.email, id: result.id });
 	}
 
 	error(req: Request, res: Response, next: NextFunction): void {
