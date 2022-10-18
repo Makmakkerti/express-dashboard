@@ -34,6 +34,11 @@ export class UserController extends BaseController implements IUserController {
 				func: this.register,
 				middlewares: [new ValidateMiddleware(UserRegisterDto)],
 			},
+			{
+				path: '/info',
+				method: 'get',
+				func: this.info,
+			},
 			{ path: '/error', method: 'post', func: this.error },
 		]);
 	}
@@ -81,6 +86,10 @@ export class UserController extends BaseController implements IUserController {
 	error(req: Request, res: Response, next: NextFunction): void {
 		console.log('Some error has happened!');
 		next(new HTTPError(522, 'Testing error message', 'Testing error context'));
+	}
+
+	async info({ user }: Request, res: Response, next: NextFunction): Promise<void> {
+		this.ok(res, { email: user });
 	}
 
 	private signJWT(email: string, secret: string): Promise<string> {
