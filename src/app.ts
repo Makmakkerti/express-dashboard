@@ -54,4 +54,12 @@ export class App {
 		this.server = this.app.listen(this.port);
 		this.logger.log(`Server running on port ${this.port}`);
 	}
+
+	public close(): void {
+		this.server?.close((err) => {
+			if (err) {
+				console.error(err);
+			}
+		});
+	}
 }

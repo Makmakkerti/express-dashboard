@@ -53,13 +53,13 @@ export class UserController extends BaseController implements IUserController {
 		const isValidUser = await this.userService.validateUser(body);
 		if (!isValidUser) {
 			this.loggerService.error('[UserController]: Invalid credentials');
-			return next(new Error('invalid credentials'));
+			return next(new HTTPError(401, 'invalid credentials'));
 		}
 
 		const foundUser = await this.userService.getUserInfo(body.email);
 		if (!foundUser) {
 			this.loggerService.error('[UserController]: Unable to find the user');
-			return next(new Error('user not found)'));
+			return next(new HTTPError(401, 'invalid credentials'));
 		}
 
 		const secret = await this.configSerice.get('JWTSECRET');
