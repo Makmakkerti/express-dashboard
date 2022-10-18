@@ -6,16 +6,19 @@ import { ILogger } from '../logger/logger.interface';
 import 'reflect-metadata';
 import { TYPES } from '../types';
 import { IUserController } from './user.interface';
+import { sign } from 'jsonwebtoken';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { IUserService } from './users.service.interface';
 import { ValidateMiddleware } from '../common/validate.middleware';
+import { IConfigService } from '../config/config.service.interface';
 
 @injectable()
 export class UserController extends BaseController implements IUserController {
 	constructor(
 		@inject(TYPES.ILogger) private loggerService: ILogger,
 		@inject(TYPES.IUserService) private userService: IUserService,
+		@inject(TYPES.IConfigService) private configSerice: IConfigService,
 	) {
 		super(loggerService);
 		this.bindRoutes([
@@ -42,17 +45,22 @@ export class UserController extends BaseController implements IUserController {
 	): Promise<void> {
 		const isValidUser = await this.userService.validateUser(body);
 		if (!isValidUser) {
-			this.loggerService.error('[UserController]: login (invalid credentials)');
+			this.loggerService.error('[UserController]: Invalid credentials');
 			return next(new Error('invalid credentials'));
 		}
 
 		const foundUser = await this.userService.getUserInfo(body.email);
 		if (!foundUser) {
-			this.loggerService.error('[UserController]: login (user not found)');
+			this.loggerService.error('[UserController]: Unable to find the user');
 			return next(new Error('user not found)'));
 		}
 
-		this.ok(res, foundUser);
+		const secret = await this.configSerice.get('JWTSECRET');
+		if (!secret) {
+			return next(new Error('[UserController]: Unable to get JWT secret'));
+		}
+		const jwt = await this.signJWT(body.email, secret);
+		this.ok(res, { jwt });
 	}
 
 	async register(
@@ -73,5 +81,26 @@ export class UserController extends BaseController implements IUserController {
 	error(req: Request, res: Response, next: NextFunction): void {
 		console.log('Some error has happened!');
 		next(new HTTPError(522, 'Testing error message', 'Testing error context'));
+	}
+
+	private signJWT(email: string, secret: string): Promise<string> {
+		return new Promise<string>((resolve, reject) => {
+			sign(
+				{
+					email,
+					iat: Math.floor(Date.now() / 1000),
+				},
+				secret,
+				{
+					algorithm: 'HS256',
+				},
+				(err, token) => {
+					if (err) {
+						reject(err);
+					}
+					resolve(token as string);
+				},
+			);
+		});
 	}
 }
